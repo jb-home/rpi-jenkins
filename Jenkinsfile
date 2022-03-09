@@ -9,6 +9,7 @@ pipeline {
     stages {
         stage('Get Jenkins & Docker') {
             steps {
+                sh 'chmod +x ./get-jenkins-docker.sh'
                 sh './get-jenkins-docker.sh'
             }
         }
@@ -23,6 +24,7 @@ pipeline {
                 echo 'Sleep to allow Jenkins to start'
                 sh 'date'
                 sleep 120
+                sh 'chmod +x ./get-versions.sh'
                 sh "./get-versions.sh $CONTAINER_NAME"	// Get jenkins, java, docker version in started container, store in version.properties
                 load './version.properties'
                 // echo "$JENKINS_VERSION"
