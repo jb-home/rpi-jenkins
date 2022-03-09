@@ -35,6 +35,7 @@ RUN apt-get update && \
 COPY jenkins.war $HOME
 COPY docker /usr/local/bin/
 COPY entrypoint.sh /
+RUN chmod +x /entrypoint.sh
 
 # Jenkins web interface, connected slave agents
 EXPOSE $JENKINS_WEB_PORT $JENKINS_SLAVE_PORT
