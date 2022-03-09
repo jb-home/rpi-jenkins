@@ -1,23 +1,23 @@
 pipeline {
     agent any
     environment {
-        DOCKER_CREDS = credentials('DOCKER_HUB_CREDS')
-        IMAGE_NAME = 'antsman/rpi-jenkins'
+        registryCredential = 'hub.docker.com'
+        IMAGE_NAME = 'jbhome/rpi-jenkins'
         IMAGE_TAG = "ci-jenkins-$BRANCH_NAME"
         CONTAINER_NAME = "$BUILD_TAG"
     }
     stages {
-        stage('GET JENKINS & DOCKER') {
+        stage('Get Jenkins & Docker') {
             steps {
                 sh './get-jenkins-docker.sh'
             }
         }
-        stage('BUILD') {
+        stage('Build') {
             steps {
                 sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
             }
         }
-        stage('TEST') {
+        stage('Test & get versions') {
             steps {
                 sh "docker run -d --rm --name $CONTAINER_NAME $IMAGE_NAME:$IMAGE_TAG"
                 echo 'Sleep to allow Jenkins to start'
@@ -33,22 +33,21 @@ pipeline {
                 sh "time docker stop $CONTAINER_NAME"
             }
         }
-        stage('PUSH') {
-            when {
-                branch 'master'
-            }
+        stage('Push') {
             steps {
                 sh "docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest"
                 sh "docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:$JENKINS_VERSION"
                 sh "docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:$JENKINS_VERSION-$JAVA_VERSION"
                 sh "docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:$JENKINS_VERSION-$JAVA_VERSION-$DOCKER_VERSION"
 
-                sh "echo $DOCKER_CREDS_PSW | docker login --username $DOCKER_CREDS_USR --password-stdin"
-
-                sh "docker push $IMAGE_NAME:latest"
-                sh "docker push $IMAGE_NAME:$JENKINS_VERSION"
-                sh "docker push $IMAGE_NAME:$JENKINS_VERSION-$JAVA_VERSION"
-                sh "docker push $IMAGE_NAME:$JENKINS_VERSION-$JAVA_VERSION-$DOCKER_VERSION"
+                script {
+                    docker.withRegistry( '', registryCredential ) {
+                        dockerImage.push('latest')
+                        dockerImage.push('$JENKINS_VERSION')
+                        dockerImage.push('$JENKINS_VERSION-$JAVA_VERSION')
+                        dockerImage.push('$JENKINS_VERSION-$JAVA_VERSION-$DOCKER_VERSION')
+                    }
+                }
 
                 sh "docker rmi \$(docker images $IMAGE_NAME -q) -f"
             }
