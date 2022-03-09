@@ -9,7 +9,6 @@ pipeline {
     stages {
         stage('Get Jenkins & Docker') {
             steps {
-                sh 'apt-get install wget -qqy'
                 sh 'chmod +x ./get-jenkins-docker.sh'
                 sh './get-jenkins-docker.sh'
             }
