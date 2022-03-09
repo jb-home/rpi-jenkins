@@ -3,7 +3,7 @@ pipeline {
     environment {
         registryCredential = 'hub.docker.com'
         IMAGE_NAME = 'jbhome/rpi-jenkins'
-        IMAGE_TAG = "ci-jenkins-$BRANCH_NAME"
+        IMAGE_TAG = "ci-jenkins"
         CONTAINER_NAME = "$BUILD_TAG"
     }
     stages {
