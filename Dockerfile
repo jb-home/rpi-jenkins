@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 # User, home (app) and data folders
 ARG USER=jenkins
