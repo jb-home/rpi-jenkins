@@ -1,26 +1,27 @@
 pipeline {
-    agent any
-    environment {
-        registryCredential = 'hub.docker.com'
-        IMAGE_NAME = 'jbhome/rpi-jenkins'
-        IMAGE_TAG = "latest"
-    }
-    stages {
-        stage('Build') {
-            steps {
-                sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
-            }
+  agent any
+  environment {
+    imagename = "jbhome/rpi-jenkins"
+    registryCredential = 'hub.docker.com'
+    dockerImage = ''
+  }
+  stages {
+    stage('Building image') {
+      steps{
+        script {
+          dockerImage = docker.build imagename
         }
-        stage('Push') {
-            steps {
-                sh "docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest"
-
-                script {
-                    docker.withRegistry( '', registryCredential ) {
-                        dockerImage.push('latest')
-                    }
-                }
-            }
-        }
+      }
     }
+    stage('Deploy Image') {
+      steps{
+        sh "docker tag $imagename $imagename:latest"
+        script {
+          docker.withRegistry( '', registryCredential ) {
+            dockerImage.push('latest')
+          }
+        }
+      }
+    }
+  }
 }
