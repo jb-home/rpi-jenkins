@@ -32,10 +32,8 @@ RUN apt-get update && \
     usermod -aG $DOCKER_GROUP_NAME $USER
 
 RUN wget https://updates.jenkins-ci.org/download/war/${VERSION}/jenkins.war \
-    && mv jenkins.war /opt
+    && mv jenkins.war $HOME
 
-COPY jenkins.war $HOME
-COPY docker /usr/local/bin/
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
