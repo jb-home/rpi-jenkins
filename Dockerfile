@@ -31,7 +31,7 @@ RUN apt-get update && \
     groupadd -g $DOCKER_GROUP_ID $DOCKER_GROUP_NAME && \
     usermod -aG $DOCKER_GROUP_NAME $USER
 
-RUN wget https://updates.jenkins-ci.org/download/war/${VERSION}/jenkins.war \
+RUN wget https://updates.jenkins-ci.org/download/war/latest/jenkins.war \
     && mv jenkins.war $HOME
 
 COPY entrypoint.sh /
