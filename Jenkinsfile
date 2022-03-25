@@ -8,21 +8,21 @@ pipeline {
   stages {
     stage('Building image') {
       steps{
+        sh "chmod +x ./get-version.sh"
+        sh "./get-version.sh"	// Get latest version number and store in version.properties
+        load "./version.properties"
         script {
-          dockerImage = docker.build imagename
+          dockerImage = docker.build imagename + "$JENKINS_VERSION"
         }
       }
     }
     stage('Deploy Image') {
       steps{
-        sh "chmod +x ./get-version.sh"
-        sh "./get-version.sh"	// Get latest version number and store in version.properties
-        load "./version.properties"
         sh "docker tag $imagename $imagename:latest"
         sh "docker tag $imagename $imagename:$JENKINS_VERSION"
         script {
           docker.withRegistry( '', registryCredential ) {
-            dockerImage.push('latest')
+            dockerImage.push()
           }
         }
       }
