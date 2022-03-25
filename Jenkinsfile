@@ -30,10 +30,9 @@ pipeline {
     stage('Remove Unused docker image') {
       steps{
         sh "docker rmi debian:bullseye-slim"
-        try {
+        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS')
+        {
           sh "docker rmi \$(docker images -f dangling=true -q)"
-        } catch (err) {
-          echo "No dangling images."
         }
       }
     }
