@@ -12,7 +12,7 @@ pipeline {
         sh "./get-version.sh"	// Get latest version number and store in version.properties
         load "./version.properties"
         script {
-          dockerImage = docker.build("$imagename","--no-cache")
+          dockerImage = docker.build("$imagename","--no-cache .")
         }
       }
     }
