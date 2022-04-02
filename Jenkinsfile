@@ -12,18 +12,20 @@ pipeline {
         sh "./get-version.sh"	// Get latest version number and store in version.properties
         load "./version.properties"
         script {
-          dockerImage = docker.build imagename + ":$JENKINS_VERSION"
+          dockerImage = docker.build imagename
         }
       }
     }
     stage('Deploy Image') {
       steps{
-        sh "docker tag $imagename:$JENKINS_VERSION $imagename:latest"
         script {
           docker.withRegistry( '', registryCredential ) {
-            dockerImage.push()
+            dockerImage.push("$JENKINS_VERSION")
+            dockerImage.push("latest")
           }
         }
+        sh "docker tag $imagename $imagename:latest"
+        sh "docker tag $imagename $imagename:$JENKINS_VERSION"
       }
     }
     stage('Remove Unused docker image') {
