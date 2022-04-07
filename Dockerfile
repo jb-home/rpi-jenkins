@@ -45,5 +45,8 @@ WORKDIR $DATA
 
 USER $USER
 
+RUN docker buildx create --use --name multiarch
+RUN docker buildx inspect --bootstrap
+
 # exec java -jar $HOME/jenkins.war --prefix=$PREFIX
 ENTRYPOINT [ "/entrypoint.sh" ]
