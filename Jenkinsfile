@@ -1,35 +1,34 @@
 pipeline {
   agent any
-
   environment {
-    IMAGENAME = "jenkins"
-    DOCKER_ID = credentials('DOCKER_ID')
-    DOCKER_PASSWORD = credentials('DOCKER_PASSWORD')
+    imagename = "jbhome/rpi-jenkins"
+    registryCredential = 'hub.docker.com'
+    dockerImage = ''
   }
-
   stages {
-    stage('Init') {
+    stage('Building image') {
       steps{
         sh "chmod +x ./get-version.sh"
         sh "./get-version.sh"	// Get latest version number and store in version.properties
         load "./version.properties"
-        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_ID --password-stdin'
+        script {
+          dockerImage = docker.build("$imagename","--no-cache .")
+        }
       }
     }
-    stage('Build') {
+    stage('Deploy Image') {
       steps{
-        sh 'docker buildx build -t $DOCKER_ID/$IMAGENAME .'
+        script {
+          docker.withRegistry( '', registryCredential ) {
+            dockerImage.push("$JENKINS_VERSION")
+            dockerImage.push("latest")
+          }
+        }
+        sh "docker tag $imagename $imagename:latest"
+        sh "docker tag $imagename $imagename:$JENKINS_VERSION"
       }
     }
-    stage('Publish') {
-      steps{
-        sh "docker tag $IMAGENAME $IMAGENAME:latest"
-        sh "docker tag $IMAGENAME $IMAGENAME:$JENKINS_VERSION"
-        sh 'docker buildx build --push --platform linux/arm/v7,linux/arm64,linux/arm/v6,linux/amd64 -t $DOCKER_ID/$IMAGENAME:latest .'
-        sh 'docker buildx build --push --platform linux/arm/v7,linux/arm64,linux/arm/v6,linux/amd64 -t $DOCKER_ID/$IMAGENAME:$JENKINS_VERSION .'
-      }
-    }
-    stage('Cleanup') {
+    stage('Remove Unused docker image') {
       steps{
         sh "docker rmi debian:bullseye-slim"
         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS')
