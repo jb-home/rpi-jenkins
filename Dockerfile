@@ -1,3 +1,7 @@
+FROM docker
+COPY --from=docker/buildx-bin /buildx /usr/libexec/docker/cli-plugins/docker-buildx
+RUN docker buildx version
+
 FROM debian:bullseye-slim
 
 # User, home (app) and data folders
@@ -44,9 +48,6 @@ EXPOSE $JENKINS_WEB_PORT $JENKINS_SLAVE_PORT
 WORKDIR $DATA
 
 USER $USER
-
-RUN docker buildx create --use --name multiarch
-RUN docker buildx inspect --bootstrap
 
 # exec java -jar $HOME/jenkins.war --prefix=$PREFIX
 ENTRYPOINT [ "/entrypoint.sh" ]
