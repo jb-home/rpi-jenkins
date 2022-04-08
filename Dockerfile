@@ -14,18 +14,11 @@ ENV JENKINS_HOME $DATA
 ENV JENKINS_WEB_PORT 8080
 ENV JENKINS_SLAVE_PORT 50000
 
-RUN apt-get update && \
-    apt-get install -y -qq \
-    qemu-user-static \
-    curl
-RUN curl -fsSL https://get.docker.com -o get-docker.sh
-RUN chmod +x /get-docker.sh
-RUN sh get-docker.sh
-
 # Extra runtime packages
-RUN apt-get install -y -qq --no-install-recommends \
+RUN apt-get update && \
+    apt-get install -y -qq --no-install-recommends \
       openjdk-11-jre-headless \
-      git ssh wget time procps && \
+      git ssh wget time procps curl && \
     rm -rf /var/lib/apt/lists/* && \
 # Prepare data and app folder
     mkdir -p $DATA && \
@@ -35,7 +28,7 @@ RUN apt-get install -y -qq --no-install-recommends \
     chown -R $USER:$USER $HOME && \
     chown -R $USER:$USER $DATA && \
 # Add $USER to docker group, same guid as pi on host
-#    groupadd -g $DOCKER_GROUP_ID $DOCKER_GROUP_NAME && \
+    groupadd -g $DOCKER_GROUP_ID $DOCKER_GROUP_NAME && \
     usermod -aG $DOCKER_GROUP_NAME $USER
 
 RUN wget https://updates.jenkins-ci.org/download/war/latest/jenkins.war \
@@ -51,9 +44,6 @@ EXPOSE $JENKINS_WEB_PORT $JENKINS_SLAVE_PORT
 WORKDIR $DATA
 
 USER $USER
-
-RUN docker buildx create --use --name multiarch
-RUN docker buildx inspect --bootstrap
 
 # exec java -jar $HOME/jenkins.war --prefix=$PREFIX
 ENTRYPOINT [ "/entrypoint.sh" ]
