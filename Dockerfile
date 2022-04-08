@@ -1,7 +1,3 @@
-FROM docker
-COPY --from=docker/buildx-bin /buildx /usr/libexec/docker/cli-plugins/docker-buildx
-RUN docker buildx version
-
 FROM debian:bullseye-slim
 
 # User, home (app) and data folders
