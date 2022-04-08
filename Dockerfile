@@ -15,14 +15,15 @@ ENV JENKINS_WEB_PORT 8080
 ENV JENKINS_SLAVE_PORT 50000
 
 RUN apt-get update && \
-    apt-get install qemu-user-static -y
+    apt-get install -y -qq \
+    qemu-user-static \
+    curl
 RUN curl -fsSL https://get.docker.com -o get-docker.sh
 RUN chmod +x /get-docker.sh
 RUN sh get-docker.sh
 
 # Extra runtime packages
-RUN apt-get update && \
-    apt-get install -y -qq --no-install-recommends \
+RUN apt-get install -y -qq --no-install-recommends \
       openjdk-11-jre-headless \
       git ssh wget time procps && \
     rm -rf /var/lib/apt/lists/* && \
