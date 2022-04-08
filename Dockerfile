@@ -7,7 +7,7 @@ ENV HOME /usr/src/$USER
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-armhf
 
 # Match the guid as on host
-ARG DOCKER_GROUP_ID=995
+ARG DOCKER_GROUP_ID=994
 ARG DOCKER_GROUP_NAME=docker
 
 ENV JENKINS_HOME $DATA
@@ -35,7 +35,7 @@ RUN apt-get install -y -qq --no-install-recommends \
     chown -R $USER:$USER $HOME && \
     chown -R $USER:$USER $DATA && \
 # Add $USER to docker group, same guid as pi on host
-    groupadd -g $DOCKER_GROUP_ID $DOCKER_GROUP_NAME && \
+#    groupadd -g $DOCKER_GROUP_ID $DOCKER_GROUP_NAME && \
     usermod -aG $DOCKER_GROUP_NAME $USER
 
 RUN wget https://updates.jenkins-ci.org/download/war/latest/jenkins.war \
