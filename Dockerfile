@@ -14,7 +14,8 @@ ENV JENKINS_HOME $DATA
 ENV JENKINS_WEB_PORT 8080
 ENV JENKINS_SLAVE_PORT 50000
 
-RUN apt-get install qemu-user-static -y
+RUN apt-get update && \
+    apt-get install qemu-user-static -y
 RUN curl -fsSL https://get.docker.com -o get-docker.sh
 RUN chmod +x /get-docker.sh
 RUN sh get-docker.sh
